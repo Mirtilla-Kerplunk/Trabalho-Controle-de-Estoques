@@ -1,0 +1,2 @@
+Oque vai te
+Produto, fornecedores e movimentação, cliente, registrar o cliente, registra entrada e saída de produtos, quantidade de produtos, controle de validade, relatório de rotatividade para evitar perdas, custos, categoria de produto, saldo atual, previsão de demanda, organização e classificação
