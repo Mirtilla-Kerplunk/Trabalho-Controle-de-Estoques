@@ -33,13 +33,3 @@ CREATE TABLE Movimentacao (
     tipo_operacao VARCHAR(20) NOT NULL CHECK (tipo_operacao IN ('entrada', 'saída')),
     observacao TEXT
 );
-
-CREATE TABLE Cliente (
-    cliente_id SERIAL PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    email VARCHAR(100),
-    telefone VARCHAR(11),
-    endereco VARCHAR(255),
-    cidade VARCHAR(100),
-    uf VARCHAR(2)
-);
