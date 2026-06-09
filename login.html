@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistema de Estoque Pokémon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pokemon: {
+                            red: '#FF0000',
+                            blue: '#3B5BA8',
+                            yellow: '#FFCC00',
+                            darkBlue: '#1A2C60',
+                            lightYellow: '#FFE666',
+                            gray: '#E0E0E0',
+                            darkGray: '#222222',
+                            blackPixel: '#0F0F0F',
+                            whitePixel: '#F8F8F8'
+                        }
+                    },
+                    fontFamily: {
+                        pokemon: ['"Press Start 2P"', 'monospace', 'sans-serif'],
+                    },
+                    borderWidth: {
+                        '3': '3px',
+                        '4': '4px',
+                    },
+                    boxShadow: {
+                        'pixel': '4px 4px 0px #000',
+                        'pixel-sm': '2px 2px 0px #000',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        @layer utilities {
+            .text-shadow-pokemon {
+                text-shadow: 3px 3px 0 #000;
+            }
+            .card-pokemon {
+                @apply bg-pokemon-whitePixel border-4 border-pokemon-blackPixel shadow-pixel;
+            }
+            .btn-primary {
+                @apply bg-pokemon-red text-white font-pokemon py-3 px-5 border-3 border-pokemon-blackPixel shadow-pixel-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150;
+            }
+            .btn-secondary {
+                @apply bg-pokemon-yellow text-pokemon-darkGray font-pokemon py-3 px-5 border-3 border-pokemon-blackPixel shadow-pixel-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150;
+            }
+            .input-pokemon {
+                @apply border-3 border-pokemon-blackPixel bg-pokemon-whitePixel px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pokemon-yellow focus:shadow-pixel-sm font-pokemon;
+            }
+            .pixel-art {
+                image-rendering: pixelated;
+                image-rendering: crisp-edges;
+                image-rendering: -moz-crisp-edges;
+            }
+            .pixel-border {
+                @apply border-4 border-pokemon-blackPixel;
+            }
+            .pixel-text {
+                @apply font-pokemon tracking-wider;
+            }
+        }
+    </style>
+</head>
+<body class="bg-[#6B8E23] bg-[radial-gradient(#8FBC8F_1px,transparent_1px)] bg-[size:16px_16px] min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <!-- Cabeçalho -->
+        <header class="text-center mb-8 relative">
+            <img 
+                src="https://art.pixilart.com/sr2a947c8f967b8.png" 
+                alt="Pokébola Pixel Art" 
+                class="pixel-art w-20 h-20 mx-auto mb-4 drop-shadow-[3px_3px_0px_#000]"
+            >
+            <h1 class="pixel-text text-[clamp(1.5rem,3vw,2.2rem)] text-pokemon-yellow text-shadow-pokemon mb-2">
+                SISTEMA DE ESTOQUE
+            </h1>
+            <p class="text-white pixel-text text-sm drop-shadow-[2px_2px_0px_#000]">Acesso ao sistema de controle</p>
+        </header>
+
+        <!-- Cartão de Login -->
+        <div class="card-pokemon p-6 md:p-8 bg-pokemon-lightYellow">
+            <h2 class="pixel-text text-lg text-pokemon-darkBlue mb-6 text-center">
+                <i class="fa fa-user-circle mr-2"></i> Escolha seu acesso
+            </h2>
+
+            <!-- Opções de Acesso -->
+            <div class="space-y-5 mb-8">
+                <!-- Administrador -->
+                <button id="btnAdmin" class="w-full btn-secondary flex items-center justify-center gap-3">
+                    <i class="fa fa-user-secret text-xl"></i>
+                    <span>ENTRAR COMO ADMIN</span>
+                </button>
+
+                <!-- Funcionário / Estoquista -->
+                <button id="btnFunc" class="w-full btn-secondary flex items-center justify-center gap-3">
+                    <i class="fa fa-user-circle-o text-xl"></i>
+                    <span>ENTRAR COMO ESTOQUISTA</span>
+                </button>
+            </div>
+
+            <!-- Formulário de Login (inicialmente oculto) -->
+            <div id="formLogin" class="hidden">
+                <div class="bg-pokemon-whitePixel p-5 pixel-border mb-5">
+                    <h3 id="tituloAcesso" class="pixel-text text-md text-center mb-4"></h3>
+                    
+                    <div class="mb-4">
+                        <label class="block text-pokemon-blackPixel pixel-text text-xs mb-2">Usuário</label>
+                        <input type="text" class="input-pokemon w-full text-sm" placeholder="Digite seu usuário">
+                    </div>
+
+                    <div class="mb-5">
+                        <label class="block text-pokemon-blackPixel pixel-text text-xs mb-2">Senha</label>
+                        <input type="password" class="input-pokemon w-full text-sm" placeholder="Digite sua senha">
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button id="btnVoltar" class="flex-1 bg-pokemon-gray text-pokemon-darkGray pixel-text py-2 border-3 border-pokemon-blackPixel shadow-pixel-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all">
+                            VOLTAR
+                        </button>
+                        <button class="flex-1 btn-primary">
+                            ENTRAR
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-center pixel-text text-xs text-pokemon-darkGray">
+            </p>
+        </div>
+
+        <!-- Rodapé -->
+        <footer class="text-center mt-6">
+            <p class="text-white pixel-text text-xs drop-shadow-[1px_1px_0px_#000]">
+                © 2026 - Empresa Fachada
+            </p>
+        </footer>
+    </div>
+
+    <!-- Script -->
+    <script>
+        const btnAdmin = document.getElementById('btnAdmin');
+        const btnFunc = document.getElementById('btnFunc');
+        const formLogin = document.getElementById('formLogin');
+        const tituloAcesso = document.getElementById('tituloAcesso');
+        const btnVoltar = document.getElementById('btnVoltar');
+
+        // Acesso Administrador
+        btnAdmin.addEventListener('click', () => {
+            tituloAcesso.textContent = 'ACESSO ADMINISTRADOR';
+            mostrarFormulario();
+        });
+
+        // Acesso Funcionário / Estoquista
+        btnFunc.addEventListener('click', () => {
+            tituloAcesso.textContent = 'ACESSO ESTOQUISTA';
+            mostrarFormulario();
+        });
+
+        // Voltar
+        btnVoltar.addEventListener('click', () => {
+            formLogin.classList.add('hidden');
+            btnAdmin.classList.remove('hidden');
+            btnFunc.classList.remove('hidden');
+        });
+
+        function mostrarFormulario() {
+            btnAdmin.classList.add('hidden');
+            btnFunc.classList.add('hidden');
+            formLogin.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

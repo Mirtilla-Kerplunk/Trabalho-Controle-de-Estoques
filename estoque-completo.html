@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estoque Completo - Sistema Pokémon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pokemon: {
+                            red: '#FF0000',
+                            blue: '#3B5BA8',
+                            yellow: '#FFCC00',
+                            darkBlue: '#1A2C60',
+                            lightYellow: '#FFE666',
+                            gray: '#E0E0E0',
+                            darkGray: '#222222',
+                            blackPixel: '#0F0F0F',
+                            whitePixel: '#F8F8F8'
+                        }
+                    },
+                    fontFamily: {
+                        pokemon: ['"Press Start 2P"', 'monospace', 'sans-serif'],
+                    },
+                    borderWidth: {
+                        '3': '3px',
+                        '4': '4px',
+                    },
+                    boxShadow: {
+                        'pixel': '4px 4px 0px #000',
+                        'pixel-sm': '2px 2px 0px #000',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        @layer utilities {
+            .text-shadow-pokemon {
+                text-shadow: 3px 3px 0 #000;
+            }
+            .card-pokemon {
+                @apply bg-pokemon-whitePixel border-4 border-pokemon-blackPixel shadow-pixel;
+            }
+            .btn-primary {
+                @apply bg-pokemon-red text-white font-pokemon py-2 px-4 border-3 border-pokemon-blackPixel shadow-pixel-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150;
+            }
+            .btn-secondary {
+                @apply bg-pokemon-yellow text-pokemon-darkGray font-pokemon py-2 px-4 border-3 border-pokemon-blackPixel shadow-pixel-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150;
+            }
+            .btn-success {
+                @apply bg-green-600 text-white font-pokemon py-2 px-4 border-3 border-pokemon-blackPixel shadow-pixel-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150;
+            }
+            .btn-warning {
+                @apply bg-yellow-500 text-pokemon-darkGray font-pokemon py-2 px-4 border-3 border-pokemon-blackPixel shadow-pixel-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150;
+            }
+            .btn-danger {
+                @apply bg-pokemon-red text-white font-pokemon py-2 px-4 border-3 border-pokemon-blackPixel shadow-pixel-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150;
+            }
+            .input-pokemon {
+                @apply border-3 border-pokemon-blackPixel bg-pokemon-whitePixel px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pokemon-yellow focus:shadow-pixel-sm font-pokemon text-sm;
+            }
+            .pixel-art {
+                image-rendering: pixelated;
+                image-rendering: crisp-edges;
+                image-rendering: -moz-crisp-edges;
+            }
+            .pixel-border {
+                @apply border-4 border-pokemon-blackPixel;
+            }
+            .pixel-text {
+                @apply font-pokemon tracking-wider;
+            }
+            .modal {
+                @apply fixed inset-0 bg-black/80 flex items-center justify-center z-50 hidden;
+            }
+            .modal-content {
+                @apply card-pokemon p-6 w-full max-w-2xl bg-pokemon-lightYellow max-h-[90vh] overflow-y-auto;
+            }
+            .badge {
+                @apply px-2 py-1 pixel-border text-xs font-pokemon;
+            }
+        }
+    </style>
+</head>
+<body class="bg-[#6B8E23] bg-[radial-gradient(#8FBC8F_1px,transparent_1px)] bg-[size:16px_16px] min-h-screen">
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
+
+        <!-- Cabeçalho Principal -->
+        <header class="mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-4">
+                <img src="https://art.pixilart.com/sr2a947c8f967b8.png" alt="Pokébola" class="pixel-art w-16 h-16 drop-shadow-[2px_2px_0px_#000]">
+                <div>
+                    <h1 class="pixel-text text-2xl text-pokemon-yellow text-shadow-pokemon">SISTEMA DE ESTOQUE COMPLETO</h1>
+                    <p class="text-white pixel-text text-sm drop-shadow-[1px_1px_0px_#000]">Controle total de entrada, saída, validade e cadastros</p>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <span id="perfilUsuario" class="bg-pokemon-blue text-white px-3 py-1 pixel-border pixel-text text-sm"></span>
+                <a href="login.html" class="btn-primary text-sm">
+                    <i class="fa fa-sign-out mr-2"></i> Sair
+                </a>
+            </div>
+        </header>
+
+        <!-- Navegação de Abas -->
+        <div class="flex flex-wrap gap-2 mb-6">
+            <button class="aba-btn active bg-pokemon-yellow text-pokemon-darkGray pixel-border px-4 py-2 pixel-text text-sm" data-aba="painel">
+                <i class="fa fa-tachometer mr-2"></i> Painel
+            </button>
+            <button class="aba-btn bg-pokemon-whitePixel text-pokemon-darkGray pixel-border px-4 py-2 pixel-text text-sm" data-aba="movimentacao">
+                <i class="fa fa-exchange mr-2"></i> Movimentação
+            </button>
+            <button class="aba-btn bg-pokemon-whitePixel text-pokemon-darkGray pixel-border px-4 py-2 pixel-text text-sm" data-aba="cadastros">
+                <i class="fa fa-folder-open mr-2"></i> Cadastros
+            </button>
+            <button class="aba-btn bg-pokemon-whitePixel text-pokemon-darkGray pixel-border px-4 py-2 pixel-text text-sm" data-aba="relatorios">
+                <i class="fa fa-line-chart mr-2"></i> Relatórios
+            </button>
+            <button class="aba-btn bg-pokemon-whitePixel text-pokemon-darkGray pixel-border px-4 py-2 pixel-text text-sm" data-aba="configuracoes">
+                <i class="fa fa-cog mr-2"></i> Configurações
+            </button>
+        </div>
+
+        <!-- Área de Conteúdo -->
+        <main>
+            <!-- Aba: PAINEL -->
+            <section id="aba-painel" class="conteudo-aba">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="card-pokemon p-4 bg-pokemon-whitePixel text-center">
+                        <p class="pixel-text text-xs text-pokemon-darkBlue">Total de Produtos</p>
+                        <p id="totalProdutos" class="pixel-text text-2xl text-pokemon-red">0</p>
+                    </div>
+                    <div class="card-pokemon p-4 bg-pokemon-whitePixel text-center">
+                        <p class="pixel-text text-xs text-pokemon-darkBlue">Quantidade Total</p>
+                        <p id="quantidadeTotal" class="pixel-text text-2xl text-pokemon-red">0</p>
+                    </div>
+                    <div class="card-pokemon p-4 bg-pokemon-whitePixel text-center">
+                        <p class="pixel-text text-xs text-pokemon-darkBlue">Valor Total</p>
+                        <p id="valorTotal" class="pixel-text text-2xl text-pokemon-red">R$ 0,00</p>
+                    </div>
+                    <div class="card-pokemon p-4 bg-pokemon-whitePixel text-center">
+                        <p class="pixel-text text-xs text-pokemon-darkBlue">Itens Vencendo</p>
+                        <p id="itensVencendo" class="pixel-text text-2xl text-yellow-600">0</p>
+                    </div>
+                </div>
+
+                <!-- Tabela Principal -->
+                <div class="card-pokemon p-6 bg-pokemon-lightYellow">
+                    <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
+                        <h3 class="pixel-text text-lg text-pokemon-darkBlue"><i class="fa fa-list-alt mr-2"></i> Estoque Atual</h3>
+                        <div class="flex gap-2">
+                            <input type="text" id="buscaProduto" class="input-pokemon text-sm" placeholder="Buscar...">
+                            <select id="filtroCategoria" class="input-pokemon text-sm">
+                                <option value="todas">Todas Categorias</option>
+                                <option value="Pokébola">Pokébola</option>
+                                <option value="Cura">Cura</option>
+                                <option value="Batalha">Batalha</option>
+                                <option value="Evolução">Evolução</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto pixel-border bg-white">
+                        <table class="w-full border-collapse">
+                            <thead>
+                                <tr class="bg-pokemon-blue text-white pixel-border-b-4">
+                                    <th class="p-3 text-left pixel-text text-xs">Código</th>
+                                    <th class="p-3 text-left pixel-text text-xs">Produto</th>
+                                    <th class="p-3 text-left pixel-text text-xs">Categoria</th>
+                                    <th class="p-3 text-center pixel-text text-xs">Qtd</th>
+                                    <th class="p-3 text-right pixel-text text-xs">Preço</th>
+                                    <th class="p-3 text-right pixel-text text-xs">Validade</th>
+                                    <th class="p-3 text-center pixel-text text-xs">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaEstoque" class="divide-y-2 divide-pokemon-gray">
+                                <tr><td colspan="7" class="p-4 text-center pixel-text text-pokemon-darkGray">Nenhum produto cadastrado.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Aba: MOVIMENTAÇÃO -->
+            <section id="aba-movimentacao" class="conteudo-aba hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Registrar Entrada -->
+                    <div class="card-pokemon p-6 bg-pokemon-lightYellow">
+                        <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-4"><i class="fa fa-arrow-circle-up text-green-600 mr-2"></i> Registrar Entrada</h3>
+                        <form id="formEntrada" class="space-y-4">
+                            <div>
+                                <label class="block pixel-text text-xs mb-2">Produto</label>
+                                <select id="produtoEntrada" class="input-pokemon w-full">
+                                    <option value="">Selecione ou cadastre novo</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block pixel-text text-xs mb-2">Quantidade</label>
+                                <input type="number" min="1" class="input-pokemon w-full" required>
+                            </div>
+                            <div>
+                                <label class="block pixel-text text-xs mb-2">Fornecedor</label>
+                                <select class="input-pokemon w-full">
+                                    <option>Distribuidora Kanto</option>
+                                    <option>Itens Johto</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block pixel-text text-xs mb-2">Lote / Validade</label>
+                                <input type="date" class="input-pokemon w-full">
+                            </div>
+                            <button type="submit" class="btn-success w-full">Registrar Entrada</button>
+                        </form>
+                    </div>
+
+                    <!-- Registrar Saída -->
+                    <div class="card-pokemon p-6 bg-pokemon-lightYellow">
+                        <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-4"><i class="fa fa-arrow-circle-down text-pokemon-red mr-2"></i> Registrar Saída</h3>
+                        <form id="formSaida" class="space-y-4">
+                            <div>
+                                <label class="block pixel-text text-xs mb-2">Produto</label>
+                                <select id="produtoSaida" class="input-pokemon w-full" required>
+                                    <option value="">Selecione produto</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block pixel-text text-xs mb-2">Quantidade</label>
+                                <input type="number" min="1" class="input-pokemon w-full" required>
+                            </div>
+                            <div>
+                                <label class="block pixel-text text-xs mb-2">Motivo / Destino</label>
+                                <select class="input-pokemon w-full">
+                                    <option>Venda</option>
+                                    <option>Uso Interno</option>
+                                    <option>Descarte</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-danger w-full">Registrar Saída</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Histórico -->
+                <div class="card-pokemon p-6 bg-pokemon-lightYellow mt-6">
+                    <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-4"><i class="fa fa-history mr-2"></i> Histórico de Movimentações</h3>
+                    <div class="overflow-x-auto pixel-border bg-white">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-pokemon-gray">
+                                    <th class="p-2 text-left pixel-text text-xs">Data</th>
+                                    <th class="p-2 text-left pixel-text text-xs">Tipo</th>
+                                    <th class="p-2 text-left pixel-text text-xs">Produto</th>
+                                    <th class="p-2 text-center pixel-text text-xs">Qtd</th>
+                                    <th class="p-2 text-left pixel-text text-xs">Responsável</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historicoMovimentacoes">
+                                <tr><td colspan="5" class="p-3 text-center pixel-text">Nenhuma movimentação registrada.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Aba: CADASTROS -->
+            <section id="aba-cadastros" class="conteudo-aba hidden">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Cadastrar Produto -->
+                    <div class="card-pokemon p-6 bg-pokemon-lightYellow">
+                        <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-4"><i class="fa fa-box mr-2"></i> Produto</h3>
+                        <form id="formCadProduto" class="space-y-3">
+                            <input type="text" class="input-pokemon w-full" placeholder="Nome" required>
+                            <input type="text" class="input-pokemon w-full" placeholder="Código" required>
+                            <select class="input-pokemon w-full" required>
+                                <option value="">Categoria</option>
+                                <option>Pokébola</option>
+                                <option>Cura</option>
+                                <option>Batalha</option>
+                                <option>Evolução</option>
+                            </select>
+                            <input type="number" step="0.01" class="input-pokemon w-full" placeholder="Preço R$" required>
+                            <button type="submit" class="btn-secondary w-full">Cadastrar</button>
+                        </form>
+                    </div>
+
+                    <!-- Cadastrar Fornecedor -->
+                    <div class="card-pokemon p-6 bg-pokemon-lightYellow">
+                        <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-4"><i class="fa fa-truck mr-2"></i> Fornecedor</h3>
+                        <form id="formCadFornecedor" class="space-y-3">
+                            <input type="text" class="input-pokemon w-full" placeholder="Nome/Razão" required>
+                            <input type="text" class="input-pokemon w-full" placeholder="CNPJ/CPF">
+                            <input type="text" class="input-pokemon w-full" placeholder="Contato">
+                            <button type="submit" class="btn-secondary w-full">Cadastrar</button>
+                        </form>
+                    </div>
+
+                    <!-- Cadastrar Cliente -->
+                    <div class="card-pokemon p-6 bg-pokemon-lightYellow">
+                        <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-4"><i class="fa fa-users mr-2"></i> Cliente</h3>
+                        <form id="formCadCliente" class="space-y-3">
+                            <input type="text" class="input-pokemon w-full" placeholder="Nome" required>
+                            <input type="text" class="input-pokemon w-full" placeholder="CPF/CNPJ">
+                            <input type="text" class="input-pokemon w-full" placeholder="Endereço">
+                            <button type="submit" class="btn-secondary w-full">Cadastrar</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Gerenciar Categorias -->
+                <div class="card-pokemon p-6 bg-pokemon-lightYellow mt-6">
+                    <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-4"><i class="fa fa-th-large mr-2"></i> Categorias</h3>
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="novaCategoria" class="input-pokemon flex-1" placeholder="Nova categoria">
+                        <button class="btn-secondary">Adicionar</button>
+                    </div>
+                    <div id="listaCategorias" class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        <div class="bg-pokemon-whitePixel pixel-border p-2 flex justify-between items-center">
+                            <span class="pixel-text text-xs">Pokébola</span>
+                            <button class="text-pokemon-red text-xs">×</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Aba: RELATÓRIOS -->
+            <section id="aba-relatorios" class="conteudo-aba hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="card-pokemon p-6 bg-pokemon-lightYellow">
+                        <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-4">📈 Rentabilidade</h3>
+                        <p class="pixel-text text-xs mb-4">Análise de lucro por produto e categoria</p>
+                        <button class="btn-secondary w-full">Gerar Relatório</button>
+                    </div>
+                    <div class="card-pokemon p-6 bg-pokemon-lightYellow">
+                        <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-4">📊 Previsão de Demanda</h3>
+                        <p class="pixel-text text-xs mb-4">Projeção de consumo baseada no histórico</p>
+                        <button class="btn-secondary w-full">Calcular Previsão</button>
+                    </div>
+                    <div class="card-pokemon p-6 bg-pokemon-lightYellow">
+                        <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-4">📋 Validade e Lotes</h3>
+                        <p class="pixel-text text-xs mb-4">Controle de vencimento e alertas</p>
+                        <button class="btn-secondary w-full">Ver Relatório</button>
+                    </div>
+                    <div class="card-pokemon p-6 bg-pokemon-lightYellow">
+                        <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-4">🗂️ Organização</h3>
+                        <p class="pixel-text text-xs mb-4">Classificação e arrumação de estoque</p>
+                        <button class="btn-secondary w-full">Organizar</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Aba: CONFIGURAÇÕES -->
+            <section id="aba-configuracoes" class="conteudo-aba hidden">
+                <div class="card-pokemon p-6 bg-pokemon-lightYellow max-w-2xl mx-auto">
+                    <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-6">⚙️ Configurações do Sistema</h3>
+                    
+                    <div class="mb-5">
+                        <label class="block pixel-text text-xs mb-2">Alerta de Estoque Mínimo</label>
+                        <input type="number" value="10" class="input-pokemon w-32">
+                    </div>
+                    <div class="mb-5">
+                        <label class="block pixel-text text-xs mb-2">Dias para Alerta de Validade</label>
+                        <input type="number" value="30" class="input-pokemon w-32">
+                    </div>
+                    <div class="mb-5">
+                        <label class="block pixel-text text-xs mb-2">Perfil de Acesso</label>
+                        <select id="seletorPerfil" class="input-pokemon w-full max-w-xs">
+                            <option value="admin">Administrador (Acesso Total)</option>
+                            <option value="estoquista">Estoquista (Operacional)</option>
+                        </select>
+                    </div>
+                    <button class="btn-primary">Salvar Configurações</button>
+                </div>
+            </section>
+        </main>
+
+    </div>
+
+    <!-- MODAIS -->
+    <!-- Modal Editar Produto -->
+    <div id="modalEditar" class="modal">
+        <div class="modal-content">
+            <h2 class="pixel-text text-lg text-pokemon-darkBlue mb-4">Editar Produto</h2>
+            <form class="space-y-3">
+                <input type="text" class="input-pokemon w-full" id="editNome">
+                <input type="text" class="input-pokemon w-full" id="editCodigo">
+                <input type="number" step="0.01" class="input-pokemon w-full" id="editPreco">
+                <div class="flex gap-3 justify-end mt-4">
+                    <button type="button" onclick="fecharModal('modalEditar')" class="bg-pokemon-gray px-4 py-2 pixel-border pixel-text">Cancelar</button>
+                    <button type="submit" class="btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Excluir -->
+    <div id="modalExcluir" class="modal">
+        <div class="modal-content max-w-md text-center">
+            <h2 class="pixel-text text-lg text-pokemon-red mb-4">Confirmar Exclusão?</h2>
+            <p class="pixel-text text-sm mb-6">Esta ação não pode ser desfeita.</p>
+            <div class="flex gap-3 justify-center">
+                <button onclick="fecharModal('modalExcluir')" class="bg-pokemon-gray px-4 py-2 pixel-border pixel-text">Cancelar</button>
+                <button class="btn-danger">Sim, Excluir</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dados
+        let estoque = [];
+        let movimentacoes = [];
+        let perfilAtual = 'admin'; // 'admin' ou 'estoquista'
+
+        // Elementos
+        const botoesAba = document.querySelectorAll('.aba-btn');
+        const conteudosAba = document.querySelectorAll('.conteudo-aba');
+        const seletorPerfil = document.getElementById('seletorPerfil');
+        const perfilUsuario = document.getElementById('perfilUsuario');
+
+        // Troca de Abas
+        botoesAba.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const aba = btn.dataset.aba;
+                botoesAba.forEach(b => b.classList.remove('active', 'bg-pokemon-yellow'));
+                botoesAba.forEach(b => b.classList.add('bg-pokemon-whitePixel'));
+                btn.classList.add('active', 'bg-pokemon-yellow');
+                btn.classList.remove('bg-pokemon-whitePixel');
+
+                conteudosAba.forEach(c => c.classList.add('hidden'));
+                document.getElementById(`aba-${aba}`).classList.remove('hidden');
+            });
+        });
+
+        // Controle de Perfil
+        function atualizarPerfil() {
+            perfilAtual = seletorPerfil.value;
+            perfilUsuario.textContent = perfilAtual === 'admin' ? 'ADMINISTRADOR' : 'ESTOQUISTA';
+            
+            // Bloqueia cadastros para estoquista
+            const abaCadastros = document.querySelector('[data-aba="cadastros"]');
+            if(perfilAtual === 'estoquista') {
+                abaCadastros.classList.add('opacity-50', 'pointer-events-none');
+            } else {
+                abaCadastros.classList.remove('opacity-50', 'pointer-events-none');
+            }
+        }
+        seletorPerfil.addEventListener('change', atualizarPerfil);
+        atualizarPerfil();
+
+        // Funções Modais
+        function abrirModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
+        window.onclick = e => {
+            document.querySelectorAll('.modal').forEach(m => { if(e.target === m) m.style.display = 'none'; });
+        };
+
+        // Cadastrar Produto
+        document.getElementById('formCadProduto').addEventListener('submit', e => {
+            e.preventDefault();
+            const dados = Object.fromEntries(new FormData(e.target));
+            const novo = {
+                id: Date.now(),
+                nome: e.target[0].value,
+                codigo: e.target[1].value,
+                categoria: e.target[2].value,
+                preco: parseFloat(e.target[3].value),
+                quantidade: 0,
+                validade: ''
+            };
+            estoque.push(novo);
+            e.target.reset();
+            atualizarTabela();
+            atualizarResumo();
+            atualizarSelects();
+            alert('Produto cadastrado com sucesso!');
+        });
+
+        // Registrar Entrada
+        document.getElementById('formEntrada').addEventListener('submit', e => {
+            e.preventDefault();
+            const id = parseInt(e.target[0].value);
+            const qtd = parseInt(e.target[1].value);
+            const lote = e.target[3].value;
+            
+            const item = estoque.find(i => i.id === id);
+            if(item) {
+                item.quantidade += qtd;
+                item.validade = lote;
+                movimentacoes.unshift({
+                    data: new Date().toLocaleString('pt-BR'),
+                    tipo: 'ENTRADA',
+                    produto: item.nome,
+                    quantidade: qtd,
+                    responsavel: perfilAtual
+                });
+                atualizarTabela();
+                atualizarResumo();
+                atualizarHistorico();
+                e.target.reset();
+            }
+        });
+
+        // Registrar Saída
+        document.getElementById('formSaida').addEventListener('submit', e => {
+            e.preventDefault();
+            const id = parseInt(e.target[0].value);
+            const qtd = parseInt(e.target[1].value);
+            
+            const item = estoque.find(i => i.id === id);
+            if(item && item.quantidade >= qtd) {
+                item.quantidade -= qtd;
+                movimentacoes.unshift({
+                    data: new Date().toLocaleString('pt-BR'),
+                    tipo: 'SAÍDA',
+                    produto: item.nome,
+                    quantidade: qtd,
+                    responsavel: perfilAtual
+                });
+                atualizarTabela();
+                atualizarResumo();
+                atualizarHistorico();
+                e.target.reset();
+            } else {
+                alert('Quantidade insuficiente em estoque!');
+            }
+        });
+
+        // Atualizar Tabela Principal
+        function atualizarTabela() {
+            const tbody = document.getElementById('tabelaEstoque');
+            tbody.innerHTML = '';
+
+            if(estoque.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center pixel-text">Nenhum produto cadastrado.</td></tr>';
+                return;
+            }
+
+            estoque.forEach(item => {
+                const linha = document.createElement('tr');
+                linha.className = 'hover:bg-pokemon-gray';
+                linha.innerHTML = `
+                    <td class="p-2 text-xs">${item.codigo}</td>
+                    <td class="p-2 text-xs font-bold">${item.nome}</td>
+                    <td class="p-2 text-xs"><span class="badge bg-pokemon-yellow">${item.categoria}</span></td>
+                    <td class="p-2 text-center text-xs ${item.quantidade < 10 ? 'text-pokemon-red font-bold' : ''}">${item.quantidade}</td>
+                    <td class="p-2 text-right text-xs">R$ ${item.preco.toFixed(2)}</td>
+                    <td class="p-2 text-right text-xs">${item.validade || '-'}</td>
+                    <td class="p-2 text-center">
+                        <button onclick="abrirModal('modalEditar')" class="text-pokemon-blue mr-2"><i class="fa fa-pencil"></i></button>
+                        <button onclick="abrirModal('modalExcluir')" class="text-pokemon-red"><i class="fa fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(linha);
+            });
+        }
+
+        // Atualizar Resumo
+        function atualizarResumo() {
+            const total = estoque.length;
+            const qtdTotal = estoque.reduce((s,i) => s + i.quantidade, 0);
+            const valorTotal = estoque.reduce((s,i) => s + (i.quantidade * i.preco), 0);
+            const vencendo = estoque.filter(i => i.validade && new Date(i.validade) < new Date(Date.now() + 30*86400000)).length;
+
+            document.getElementById('totalProdutos').textContent = total;
+            document.getElementById('quantidadeTotal').textContent = qtdTotal;
+            document.getElementById('valorTotal').textContent = `R$ ${valorTotal.toFixed(2)}`;
+            document.getElementById('itensVencendo').textContent = vencendo;
+        }
+
+        // Atualizar Selects
+        function atualizarSelects() {
+            const se1 = document.getElementById('produtoEntrada');
+            const se2 = document.getElementById('produtoSaida');
+            se1.innerHTML = '<option value="">Selecione</option>';
+            se2.innerHTML = '<option value="">Selecione</option>';
+            
+            estoque.forEach(item => {
+                const opt1 = document.createElement('option');
+                opt1.value = item.id;
+                opt1.textContent = `${item.nome} | R$ ${item.preco.toFixed(2)}`;
+                se1.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = item.id;
+                opt2.textContent = `${item.nome} | Qtd: ${item.quantidade}`;
+                se2.appendChild(opt2);
+            });
+        }
+
+        // Atualizar Histórico
+        function atualizarHistorico() {
+            const tbody = document.getElementById('historicoMovimentacoes');
+            tbody.innerHTML = '';
+            if(movimentacoes.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="p-3 text-center pixel-text">Nenhuma movimentação.</td></tr>';
+                return;
+            }
+            movimentacoes.forEach(mov => {
+                const linha = document.createElement('tr');
+                linha.className = mov.tipo === 'ENTRADA' ? 'bg-green-100/50' : 'bg-red-100/50';
+                linha.innerHTML = `
+                    <td class="p-2 text-xs">${mov.data}</td>
+                    <td class="p-2 text-xs font-bold ${mov.tipo === 'ENTRADA' ? 'text-green-700' : 'text-red-700'}">${mov.tipo}</td>
+                    <td class="p-2 text-xs">${mov.produto}</td>
+                    <td class="p-2 text-center text-xs">${mov.quantidade}</td>
+                    <td class="p-2 text-xs">${mov.responsavel}</td>
+                `;
+                tbody.appendChild(linha);
+            });
+        }
+
+        // Inicialização
+        atualizarTabela();
+        atualizarResumo();
+        atualizarSelects();
+        atualizarHistorico();
+    </script>
+</body>
+</html>

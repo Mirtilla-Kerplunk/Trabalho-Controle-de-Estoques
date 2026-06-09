@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Estoquista - Sistema de Estoque</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pokemon: {
+                            red: '#FF0000',
+                            blue: '#3B5BA8',
+                            yellow: '#FFCC00',
+                            darkBlue: '#1A2C60',
+                            lightYellow: '#FFE666',
+                            gray: '#E0E0E0',
+                            darkGray: '#222222',
+                            blackPixel: '#0F0F0F',
+                            whitePixel: '#F8F8F8'
+                        }
+                    },
+                    fontFamily: {
+                        pokemon: ['"Press Start 2P"', 'monospace', 'sans-serif'],
+                    },
+                    borderWidth: {
+                        '3': '3px',
+                        '4': '4px',
+                    },
+                    boxShadow: {
+                        'pixel': '4px 4px 0px #000',
+                        'pixel-sm': '2px 2px 0px #000',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        @layer utilities {
+            .text-shadow-pokemon {
+                text-shadow: 3px 3px 0 #000;
+            }
+            .card-pokemon {
+                @apply bg-pokemon-whitePixel border-4 border-pokemon-blackPixel shadow-pixel;
+            }
+            .btn-primary {
+                @apply bg-pokemon-red text-white font-pokemon py-2 px-4 border-3 border-pokemon-blackPixel shadow-pixel-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150;
+            }
+            .btn-secondary {
+                @apply bg-pokemon-yellow text-pokemon-darkGray font-pokemon py-2 px-4 border-3 border-pokemon-blackPixel shadow-pixel-sm hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none transition-all duration-150;
+            }
+            .input-pokemon {
+                @apply border-3 border-pokemon-blackPixel bg-pokemon-whitePixel px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pokemon-yellow focus:shadow-pixel-sm font-pokemon text-sm;
+            }
+            .pixel-art {
+                image-rendering: pixelated;
+                image-rendering: crisp-edges;
+                image-rendering: -moz-crisp-edges;
+            }
+            .pixel-border {
+                @apply border-4 border-pokemon-blackPixel;
+            }
+            .pixel-text {
+                @apply font-pokemon tracking-wider;
+            }
+            .modal {
+                @apply fixed inset-0 bg-black/80 flex items-center justify-center z-50 hidden;
+            }
+            .modal-content {
+                @apply card-pokemon p-6 w-full max-w-lg bg-pokemon-lightYellow max-h-[90vh] overflow-y-auto;
+            }
+            .btn-disabled {
+                @apply bg-pokemon-gray text-pokemon-darkGray border-3 border-pokemon-blackPixel opacity-60 cursor-not-allowed;
+            }
+        }
+    </style>
+</head>
+<body class="bg-[#6B8E23] bg-[radial-gradient(#8FBC8F_1px,transparent_1px)] bg-[size:16px_16px] min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Cabeçalho -->
+        <header class="mb-10 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-4">
+                <img src="https://art.pixilart.com/7b2d1341e20f674.png" alt="Pikachu" class="pixel-art w-16 h-16 drop-shadow-[2px_2px_0px_#000]">
+                <div>
+                    <h1 class="pixel-text text-2xl text-pokemon-yellow text-shadow-pokemon">PAINEL ESTOQUISTA</h1>
+                    <p class="text-white pixel-text text-sm drop-shadow-[1px_1px_0px_#000]">Acesso Operacional</p>
+                </div>
+            </div>
+            <a href="login.html" class="btn-primary text-sm">
+                <i class="fa fa-sign-out mr-2"></i> SAIR
+            </a>
+        </header>
+
+        <!-- Aviso de Permissões -->
+        <div class="bg-pokemon-blue text-white p-4 pixel-border mb-8 text-center">
+            <p class="pixel-text text-xs">⚠️ Você tem acesso apenas às funções operacionais. Cadastros de fornecedores/clientes são restritos ao Administrador.</p>
+        </div>
+
+        <!-- Grade de Funções -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+            
+            <!-- UC05 - Registrar Entrada -->
+            <div class="card-pokemon p-6 bg-pokemon-lightYellow">
+                <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-4 flex items-center gap-2">
+                    <i class="fa fa-arrow-circle-up"></i> Registrar Entrada
+                </h3>
+                <p class="pixel-text text-xs mb-4">Entrada de produtos no estoque</p>
+                <button onclick="abrirModal('modalEntrada')" class="btn-secondary w-full text-sm">Acessar</button>
+            </div>
+
+            <!-- UC06 - Registrar Saída -->
+            <div class="card-pokemon p-6 bg-pokemon-lightYellow">
+                <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-4 flex items-center gap-2">
+                    <i class="fa fa-arrow-circle-down"></i> Registrar Saída
+                </h3>
+                <p class="pixel-text text-xs mb-4">Saída e movimentação</p>
+                <button onclick="abrirModal('modalSaida')" class="btn-secondary w-full text-sm">Acessar</button>
+            </div>
+
+            <!-- UC07 - Consultar Estoque -->
+            <div class="card-pokemon p-6 bg-pokemon-lightYellow">
+                <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-4 flex items-center gap-2">
+                    <i class="fa fa-search"></i> Consultar Estoque
+                </h3>
+                <p class="pixel-text text-xs mb-4">Verificar quantidades e lotes</p>
+                <button onclick="abrirModal('modalConsulta')" class="btn-secondary w-full text-sm">Acessar</button>
+            </div>
+
+            <!-- UC08 - Consultar Saldo Atual -->
+            <div class="card-pokemon p-6 bg-pokemon-lightYellow">
+                <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-4 flex items-center gap-2">
+                    <i class="fa fa-balance-scale"></i> Saldo Atual
+                </h3>
+                <p class="pixel-text text-xs mb-4">Saldo e disponibilidade</p>
+                <button onclick="abrirModal('modalSaldo')" class="btn-secondary w-full text-sm">Acessar</button>
+            </div>
+
+            <!-- UC09 - Gerenciar Categorias -->
+            <div class="card-pokemon p-6 bg-pokemon-lightYellow">
+                <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-4 flex items-center gap-2">
+                    <i class="fa fa-th-large"></i> Categorias
+                </h3>
+                <p class="pixel-text text-xs mb-4">Organizar itens</p>
+                <button onclick="abrirModal('modalCategoria')" class="btn-secondary w-full text-sm">Acessar</button>
+            </div>
+
+            <!-- UC10 - Controlar Validade -->
+            <div class="card-pokemon p-6 bg-pokemon-lightYellow">
+                <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-4 flex items-center gap-2">
+                    <i class="fa fa-calendar-times-o"></i> Controle de Validade
+                </h3>
+                <p class="pixel-text text-xs mb-4">Vencimento e lotes</p>
+                <button onclick="abrirModal('modalValidade')" class="btn-secondary w-full text-sm">Acessar</button>
+            </div>
+
+            <!-- Relatórios e Previsão -->
+            <div class="card-pokemon p-6 bg-pokemon-lightYellow">
+                <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-4 flex items-center gap-2">
+                    <i class="fa fa-line-chart"></i> Relatórios / Previsão
+                </h3>
+                <p class="pixel-text text-xs mb-4">Demanda e movimentação</p>
+                <button onclick="abrirModal('modalRelatorios')" class="btn-secondary w-full text-sm">Acessar</button>
+            </div>
+
+            <!-- Funções APENAS ADMIN - Desativadas -->
+            <div class="card-pokemon p-6 bg-pokemon-gray">
+                <h3 class="pixel-text text-lg text-pokemon-darkGray mb-4 flex items-center gap-2">
+                    <i class="fa fa-lock"></i> Cadastros Gerais
+                </h3>
+                <p class="pixel-text text-xs mb-4">Apenas Administrador</p>
+                <button class="btn-disabled w-full text-sm" disabled>INDISPONÍVEL</button>
+            </div>
+
+        </div>
+
+        <!-- Acesso ao Controle de Estoque -->
+        <div class="card-pokemon p-6 bg-pokemon-yellow text-center">
+            <h3 class="pixel-text text-lg text-pokemon-darkBlue mb-3">Movimentação de Estoque</h3>
+            <p class="pixel-text text-sm mb-4">Registrar entrada e saída de produtos</p>
+            <a href="estoque-completo.html" class="btn-primary">
+                <i class="fa fa-exchange mr-2"></i> ABRIR MOVIMENTAÇÃO
+            </a>
+        </div>
+
+    </div>
+
+    <!-- MODAIS -->
+    <!-- Modal Registrar Entrada -->
+    <div id="modalEntrada" class="modal">
+        <div class="modal-content">
+            <h2 class="pixel-text text-lg text-pokemon-darkBlue mb-6">Registrar Entrada de Produtos</h2>
+            <form class="space-y-4">
+                <div>
+                    <label class="block pixel-text text-xs mb-2">Produto</label>
+                    <select class="input-pokemon w-full">
+                        <option>Poção - R$ 10,00</option>
+                        <option>Pokébola - R$ 20,00</option>
+                        <option>Super Poção - R$ 25,00</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block pixel-text text-xs mb-2">Quantidade Recebida</label>
+                    <input type="number" min="1" class="input-pokemon w-full">
+                </div>
+                <div>
+                    <label class="block pixel-text text-xs mb-2">Lote</label>
+                    <input type="text" class="input-pokemon w-full">
+                </div>
+                <div class="flex gap-3 justify-end mt-6">
+                    <button type="button" onclick="fecharModal('modalEntrada')" class="bg-pokemon-gray px-4 py-2 pixel-border pixel-text text-sm">Cancelar</button>
+                    <button type="submit" class="btn-primary text-sm">Registrar Entrada</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Registrar Saída -->
+    <div id="modalSaida" class="modal">
+        <div class="modal-content">
+            <h2 class="pixel-text text-lg text-pokemon-darkBlue mb-6">Registrar Saída de Produtos</h2>
+            <form class="space-y-4">
+                <div>
+                    <label class="block pixel-text text-xs mb-2">Produto</label>
+                    <select class="input-pokemon w-full">
+                        <option>Poção - Estoque: 50</option>
+                        <option>Pokébola - Estoque: 30</option>
+                        <option>Super Poção - Estoque: 15</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block pixel-text text-xs mb-2">Quantidade Retirada</label>
+                    <input type="number" min="1" class="input-pokemon w-full">
+                </div>
+                <div>
+                    <label class="block pixel-text text-xs mb-2">Motivo da Saída</label>
+                    <select class="input-pokemon w-full">
+                        <option>Venda</option>
+                        <option>Uso Interno</option>
+                        <option>Descarte</option>
+                    </select>
+                </div>
+                <div class="flex gap-3 justify-end mt-6">
+                    <button type="button" onclick="fecharModal('modalSaida')" class="bg-pokemon-gray px-4 py-2 pixel-border pixel-text text-sm">Cancelar</button>
+                    <button type="submit" class="btn-primary text-sm">Registrar Saída</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Consultar Estoque -->
+    <div id="modalConsulta" class="modal">
+        <div class="modal-content">
+            <h2 class="pixel-text text-lg text-pokemon-darkBlue mb-6">Consulta de Estoque</h2>
+            <div class="mb-4">
+                <input type="text" class="input-pokemon w-full" placeholder="Buscar produto...">
+            </div>
+            <div class="pixel-border bg-white p-3 mb-4">
+                <p class="pixel-text text-xs">📦 Poção: <b>50 unidades</b> | R$ 10,00</p>
+                <p class="pixel-text text-xs">📦 Pokébola: <b>30 unidades</b> | R$ 20,00</p>
+                <p class="pixel-text text-xs">📦 Super Poção: <b>15 unidades</b> | R$ 25,00</p>
+            </div>
+            <button onclick="fecharModal('modalConsulta')" class="w-full bg-pokemon-gray px-4 py-2 pixel-border pixel-text text-sm">Fechar</button>
+        </div>
+    </div>
+
+    <!-- Modal Saldo Atual -->
+    <div id="modalSaldo" class="modal">
+        <div class="modal-content">
+            <h2 class="pixel-text text-lg text-pokemon-darkBlue mb-6">Saldo Atual do Estoque</h2>
+            <div class="pixel-border bg-white p-3 space-y-2 mb-4">
+                <p class="pixel-text text-xs">💰 Valor total: <b>R$ 1.375,00</b></p>
+                <p class="pixel-text text-xs">📦 Total de itens: <b>95 unidades</b></p>
+                <p class="pixel-text text-xs">⚠️ Itens abaixo do mínimo: <b>2</b></p>
+            </div>
+            <button onclick="fecharModal('modalSaldo')" class="w-full bg-pokemon-gray px-4 py-2 pixel-border pixel-text text-sm">Fechar</button>
+        </div>
+    </div>
+
+    <!-- Modal Gerenciar Categorias -->
+    <div id="modalCategoria" class="modal">
+        <div class="modal-content">
+            <h2 class="pixel-text text-lg text-pokemon-darkBlue mb-6">Gerenciar Categorias</h2>
+            <div class="mb-4 space-y-2">
+                <div class="flex justify-between items-center pixel-border p-2 bg-white">
+                    <span class="pixel-text text-xs">Pokébola</span>
+                </div>
+                <div class="flex justify-between items-center pixel-border p-2 bg-white">
+                    <span class="pixel-text text-xs">Item de Cura</span>
+                </div>
+            </div>
+            <div class="mt-4 text-right">
+                <button onclick="fecharModal('modalCategoria')" class="bg-pokemon-gray px-4 py-2 pixel-border pixel-text text-sm">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Controle de Validade -->
+    <div id="modalValidade" class="modal">
+        <div class="modal-content">
+            <h2 class="pixel-text text-lg text-pokemon-darkBlue mb-6">Controle de Validade</h2>
+            <div class="pixel-border bg-white p-3 space-y-2 mb-4">
+                <p class="pixel-text text-xs text-red-600">⚠️ Antídoto - Vence em: 10/06/2026</p>
+                <p class="pixel-text text-xs text-yellow-600">⚠️ Remédio - Vence em: 25/07/2026</p>
+                <p class="pixel-text text-xs text-green-600">✅ Poção - Vence em: 15/12/2027</p>
+            </div>
+            <button onclick="fecharModal('modalValidade')" class="w-full bg-pokemon-gray px-4 py-2 pixel-border pixel-text text-sm">Fechar</button>
+        </div>
+    </div>
+
+    <!-- Modal Relatórios -->
+    <div id="modalRelatorios" class="modal">
+        <div class="modal-content">
+            <h2 class="pixel-text text-lg text-pokemon-darkBlue mb-6">Relatórios Operacionais</h2>
+            <div class="space-y-4">
+                <button class="btn-secondary w-full text-sm text-left">📊 Previsão de Demanda</button>
+                <button class="btn-secondary w-full text-sm text-left">🗂️ Organizar e Classificar Produtos</button>
+            </div>
+            <div class="mt-6 text-right">
+                <button onclick="fecharModal('modalRelatorios')" class="bg-pokemon-gray px-4 py-2 pixel-border pixel-text text-sm">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function abrirModal(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+        function fecharModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+        window.onclick = function(e) {
+            document.querySelectorAll('.modal').forEach(m => {
+                if (e.target === m) m.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>
